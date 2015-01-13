@@ -6,3 +6,4 @@ doc/p2.out
 doc/p2.run.xml
 doc/p2-blx.bib
 src/*.class
+bin/shape.jar

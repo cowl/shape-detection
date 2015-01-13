@@ -2,7 +2,9 @@ COMPILER=javac
 
 SOURCES = \
 	Main.java \
-	Point.java
+	Point.java \
+	ImagePreprocessor.java \
+	PixelExtractor.java
 
 OPTIONS =
 
