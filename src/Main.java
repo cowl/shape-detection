@@ -4,6 +4,7 @@
 
 public class Main {
   public static void main(String[] args){
-    System.out.println("I WANNA BE THE VERY BEST");
+	System.out.println("LETS SHOUT THAT FEELING FROM OUR CHEST");
+    System.out.println("WE WANNA BE THE VERY BEST");
   }
 }
