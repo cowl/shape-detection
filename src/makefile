@@ -2,13 +2,12 @@ COMPILER=javac
 
 SOURCES = \
 	Main.java \
-	Point2D.java \
 	ImagePreprocessor.java \
 	PixelExtractor.java \
 	Visualisation.java \
 	Window.java
 
-OPTIONS =
+OPTIONS = -classpath ../bin/javaGeom-0.11.2.jar
 
 all: shape.jar clean
 

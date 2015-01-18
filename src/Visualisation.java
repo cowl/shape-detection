@@ -6,6 +6,7 @@ import java.util.*;
 import java.awt.*;
 import java.awt.image.*;
 import javax.swing.*;
+import math.geom2d.Point2D;
 
 public class Visualisation extends JPanel {
 
@@ -19,7 +20,7 @@ public class Visualisation extends JPanel {
     Graphics2D g2d = (Graphics2D) g;
 
     if(background != null){
-      g2d.drawImage(background, null, 2, 2);
+      g2d.drawImage(background, null, 0, 0);
     }
 
     if(points != null){

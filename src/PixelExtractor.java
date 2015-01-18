@@ -5,6 +5,7 @@
 import java.awt.image.*;
 import java.io.*;
 import java.util.*;
+import math.geom2d.Point2D;
 
 public class PixelExtractor extends ImagePreprocessor<List<Point2D>> {
 
