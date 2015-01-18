@@ -7,6 +7,8 @@ import java.util.*;
 import math.geom2d.Point2D;
 import math.geom2d.conic.Circle2D;
 
+import math.geom2d.Point2D;
+
 public class Main {
 
   public static BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
@@ -15,15 +17,23 @@ public class Main {
 
   public static void main(String[] args){
     try{
-      img = new PixelExtractor("../img/fig1-5.png");
+      img = new PixelExtractor("img/fig1-5.png");
       pts = img.getOutput();
       System.out.println(pts.size());
     } catch(Exception e){ System.out.println("uh..."); }
+
+
+    RANSAC alg = new RANSAC(1000, 10);
+
+    alg.Run(pts, new CircleModel());
 
     Visualisation viz = new Visualisation();
     viz.setBackground(img.getImage());
     viz.setPoints(img.getOutput());
     viz.setAnnulus(new Circle2D(100,100,50), 10);
+
+    viz.setPoints(alg.getTop().getInliers());
+    System.out.println(alg.getTop().score);
     new Window(viz);
 
   }
