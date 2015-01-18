@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import math.geom2d.conic.Circle2D;
@@ -28,11 +29,21 @@ public class CircleModel extends Model {
 	
 	// Counts the score and returns the set of inliers
 	public List<Point2D> countScore(List<Point2D> data, double threshold){
+		if(circle == null || data == null || data.size() == 0){
+			return null;
+		}
 		List<Point2D> inliers = new ArrayList<Point2D>();
+	
+		Point2D point;
+		Iterator<Point2D> iterator = data.iterator();
+		while(iterator.hasNext()){
+			point = iterator.next();
+			if(circle.distance(point) < threshold){
+				inliers.add(point);
+			}
+		}
 		
-		int dataSize = data.size();
-		
-		
+		score = inliers.size()/data.size();
 		
 		return inliers;
 	}
