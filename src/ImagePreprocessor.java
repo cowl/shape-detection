@@ -11,12 +11,9 @@ public abstract class ImagePreprocessor<T> {
 
   public abstract T Process(BufferedImage img);
 
-  public T Process(String filename){
+  public T Process(String filename) throws IOException {
     BufferedImage img = null;
-    try {
-      img = ImageIO.read(new File(filename));
-    } catch (IOException e) {
-    }
+    img = ImageIO.read(new File(filename));
     return Process(img);
   }
 
