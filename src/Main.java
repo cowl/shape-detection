@@ -5,6 +5,7 @@
 import java.io.*;
 import java.util.*;
 import math.geom2d.Point2D;
+import math.geom2d.conic.Circle2D;
 
 public class Main {
 
@@ -22,6 +23,7 @@ public class Main {
     Visualisation viz = new Visualisation();
     viz.setBackground(img.getImage());
     viz.setPoints(img.getOutput());
+    viz.setAnnulus(new Circle2D(100,100,50), 10);
     new Window(viz);
 
   }
