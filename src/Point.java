@@ -4,5 +4,17 @@
 
 // Figure 1.5 and 1.6 of small.df
 public class Point {
-  public double x, y;
+  private float x, y;
+  public Point(float _x, float _y){
+    x = _x;
+    y = _y;
+  }
+
+  public float getX(){
+    return x;
+  }
+
+  public float getY(){
+    return y;
+  }
 }
