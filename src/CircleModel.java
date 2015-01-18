@@ -14,12 +14,26 @@ import math.geom2d.Point2D;
 public class CircleModel extends Model {
 	private Circle2D circle = null;
 	
+	public CircleModel(){
+		super();
+	};
+	
+	public CircleModel(CircleModel other){
+		super();
+		circle = other.getCircle();
+		Iterator<Point2D> iterator = other.getInliers().iterator();
+		while(iterator.hasNext()){
+			inliers.add(iterator.next());
+		}
+		score = other.getScore();
+	}
+	
 	@Override
 	public boolean setParameters(Point2D[] samples) {
 		if(samples.length < 3){
 			return false;
 		}
-		else if(!samples[0].contains(samples[1]) && !samples[0].contains(samples[2]) && !samples[1].contains(samples[2])){
+		else if(samples[0].contains(samples[1]) || samples[0].contains(samples[2]) || samples[1].contains(samples[2])){
 			// Samples given should not be the same points
 			return false;
 		}
@@ -27,15 +41,20 @@ public class CircleModel extends Model {
 		return true;
 	}
 	
-	// Counts the score and returns the set of inliers
-	public List<Point2D> countScore(List<Point2D> data, double threshold){
-		if(circle == null || data == null || data.size() == 0){
-			return null;
+	@Override
+	public CircleModel clone(){
+		return new CircleModel(this);
+	}
+	
+
+	public double countScore(List<Point2D> pts, double threshold){
+		if(circle == null || pts == null || pts.size() == 0){
+			return 0;
 		}
-		List<Point2D> inliers = new ArrayList<Point2D>();
+		inliers = new ArrayList<Point2D>();
 	
 		Point2D point;
-		Iterator<Point2D> iterator = data.iterator();
+		Iterator<Point2D> iterator = pts.iterator();
 		while(iterator.hasNext()){
 			point = iterator.next();
 			if(circle.distance(point) < threshold){
@@ -43,9 +62,9 @@ public class CircleModel extends Model {
 			}
 		}
 		
-		score = inliers.size()/data.size();
+		score = (double)inliers.size()/(double)pts.size();
 		
-		return inliers;
+		return score;
 	}
 	
 	@Override
