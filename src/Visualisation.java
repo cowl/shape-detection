@@ -2,16 +2,42 @@
 // Assignment 2: Implementation of RANSAC
 // Niels Steenbergen, Tom Sýkora
 
-import java.awt.*;
 import java.util.*;
+import java.awt.*;
+import java.awt.image.*;
 import javax.swing.*;
 
 public class Visualisation extends JPanel {
-  private void draw(Graphics g) {
+
+  private BufferedImage background = null;
+  private java.util.List<Point2D> points = null;
+
+  @Override
+  public void paintComponent(Graphics g){
+    super.paintComponent(g);
+
+    Graphics2D g2d = (Graphics2D) g;
+
+    if(background != null){
+      g2d.drawImage(background, null, 2, 2);
+    }
+
+    if(points != null){
+      g2d.setColor(Color.red);
+      for(Point2D p : points){
+        int x = (int)p.getX(), y = (int)p.getY();
+        g2d.drawLine(x, y, x, y);
+      }
+    }
+
   }
 
-  public void paintComponent(Graphics g) {
-    super.paintComponent(g);
-    draw(g);
+  public void setBackground(BufferedImage img){
+    background = img;
   }
+
+  public void setPoints(java.util.List<Point2D> pts){
+    points = pts;
+  }
+
 }

@@ -2,15 +2,14 @@
 // Assignment 2: Implementation of RANSAC
 // Niels Steenbergen, Tom Sýkora
 
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
 
   public static BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
-  public static List<Point> pts = null;
-  //public static BufferedImage img = null;
-  public static ImagePreprocessor<List<Point>> img = null;
+  public static List<Point2D> pts = null;
+  public static ImagePreprocessor<List<Point2D>> img = null;
 
   public static void main(String[] args){
     try{
@@ -19,8 +18,11 @@ public class Main {
       System.out.println(pts.size());
     } catch(Exception e){ System.out.println("uh..."); }
 
-    Window viz = new Window();
-    viz.setVisible(true);
+    Visualisation viz = new Visualisation();
+    viz.setBackground(img.getImage());
+    viz.setPoints(img.getOutput());
+    new Window(viz);
+
   }
 
 }

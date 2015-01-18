@@ -7,15 +7,14 @@ import java.util.*;
 import javax.swing.*;
 
 public class Window extends JFrame {
-  public Window() {
-    init();
-  }
 
-  private void init() {
+  public Window(Visualisation v) {
     setTitle("Visualisation");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    add(new Visualisation());
+    add(v);
     setSize(800, 800);
     setLocationRelativeTo(null);
+    setVisible(true);
   }
+
 }
