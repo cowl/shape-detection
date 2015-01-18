@@ -4,7 +4,9 @@ SOURCES = \
 	Main.java \
 	Point.java \
 	ImagePreprocessor.java \
-	PixelExtractor.java
+	PixelExtractor.java \
+	Visualisation.java \
+	Window.java
 
 OPTIONS =
 

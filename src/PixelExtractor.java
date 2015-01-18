@@ -3,18 +3,26 @@
 // Niels Steenbergen, Tom Sýkora
 
 import java.util.*;
+import java.io.*;
 import java.awt.image.BufferedImage;
 
 public class PixelExtractor extends ImagePreprocessor<List<Point>> {
 
-  private static int treshold = 0x40; // grayscale value (0-0xFF) below which the pixel is considered 'a point'
+  public PixelExtractor(String filename) throws IOException {
+    super(filename);
+  }
 
-  public List<Point> Process(BufferedImage img){
+  // Grayscale value (0-0xFF) below which the pixel is considered 'a point'
+  // Note that we could also have preprocessed the buffer image using
+  // BufferedImage.TYPE_BYTE_GRAY or TYPE_BYTE_BINARY and simply taken the R val
+  private static int treshold = 0x40;
+
+  protected List<Point> process(){
     List<Point> pts = new ArrayList<Point>();
-    int w = img.getWidth(), h = img.getHeight();
+    int w = image.getWidth(), h = image.getHeight();
     for(int x = 0; x < w; x++)
       for(int y = 0; y < w; y++){
-        int rgb = img.getRGB(x, y),
+        int rgb = image.getRGB(x, y),
             r   = rgb >> 16 & 0xFF,
             g   = rgb >>  8 & 0xFF,
             b   = rgb >>  0 & 0xFF;

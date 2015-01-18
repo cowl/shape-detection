@@ -9,14 +9,29 @@ import javax.imageio.ImageIO;
 
 public abstract class ImagePreprocessor<T> {
 
-  public abstract T Process(BufferedImage img);
+  protected BufferedImage original, image;
+  protected T output;
 
-  public T Process(File file) throws IOException {
-    return Process(ImageIO.read(file));
+  public ImagePreprocessor(String filename) throws IOException {
+    this(new File(filename));
+  }
+  public ImagePreprocessor(File file) throws IOException {
+    image = original = ImageIO.read(file);
+    output   = process();
   }
 
-  public T Process(String filename) throws IOException {
-    return Process(new File(filename));
+  protected abstract T process();
+
+  public BufferedImage getOriginal(){
+    return original;
+  }
+
+  public BufferedImage getImage(){
+    return image;
+  }
+
+  public T getOutput(){
+    return output;
   }
 
 }

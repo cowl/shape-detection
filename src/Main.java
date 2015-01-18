@@ -9,15 +9,18 @@ public class Main {
 
   public static BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
   public static List<Point> pts = null;
+  //public static BufferedImage img = null;
+  public static ImagePreprocessor<List<Point>> img = null;
 
   public static void main(String[] args){
-    try {
-      pts = (new PixelExtractor()).Process("../img/fig1-5.png");
+    try{
+      img = new PixelExtractor("../img/fig1-5.png");
+      pts = img.getOutput();
       System.out.println(pts.size());
-    } catch(IOException e){
-      System.out.println("An error occurred.");
-    }
+    } catch(Exception e){ System.out.println("uh..."); }
 
+    Window viz = new Window();
+    viz.setVisible(true);
   }
 
 }
