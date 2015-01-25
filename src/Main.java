@@ -20,7 +20,9 @@ public class Main {
       img = new PixelExtractor("img/fig1-5.png");
       pts = img.getOutput();
       System.out.println(pts.size());
-    } catch(Exception e){ System.out.println("uh..."); }
+    } catch(Exception e){
+      System.out.println("Cannot find source image.");
+    }
 
 
     RANSAC alg = new RANSAC(1000, 10);
@@ -30,7 +32,7 @@ public class Main {
     Visualisation viz = new Visualisation();
     viz.setBackground(img.getImage());
     viz.setPoints(img.getOutput());
-    viz.setAnnulus(new Circle2D(100,100,50), 10);
+    viz.setAnnulus(new Circle2D(100,100,50), 50);
 
     viz.setPoints(alg.getTop().getInliers());
     System.out.println(alg.getTop().score);
