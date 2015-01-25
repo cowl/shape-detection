@@ -3,6 +3,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import math.geom2d.conic.Circle2D;
+import math.geom2d.line.Line2D;
 import math.geom2d.Point2D;
 
 /**
@@ -34,10 +35,19 @@ public class CircleModel extends Model {
 			return false;
 		}
 		else if(samples[0].contains(samples[1]) || samples[0].contains(samples[2]) || samples[1].contains(samples[2])){
-			// Samples given should not be the same points
+			// Some of the points are the same
 			return false;
 		}
-		circle = Circle2D.circumCircle(samples[0], samples[1], samples[2]);
+		else if((new Line2D(samples[0], samples[1])).contains(samples[2])){
+			// All three are in same line
+			return false;
+		}
+		try{
+			circle = Circle2D.circumCircle(samples[0], samples[1], samples[2]);
+		}
+		catch(Exception e){
+			return false;
+		}
 		return true;
 	}
 	
@@ -46,10 +56,9 @@ public class CircleModel extends Model {
 		return new CircleModel(this);
 	}
 	
-
-	public double countScore(List<Point2D> pts, double threshold){
+	public void setInliers(List<Point2D> pts, double threshold){
 		if(circle == null || pts == null || pts.size() == 0){
-			return 0;
+			return;
 		}
 		inliers = new ArrayList<Point2D>();
 	
@@ -61,10 +70,6 @@ public class CircleModel extends Model {
 				inliers.add(point);
 			}
 		}
-		
-		score = (double)inliers.size()/(double)pts.size();
-		
-		return score;
 	}
 	
 	@Override

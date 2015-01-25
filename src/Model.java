@@ -21,8 +21,10 @@ public abstract class Model {
 	// The model itself will set its parameters
 	public abstract boolean setParameters(Point2D [] samples);
 	
-	// Counts the score and returns it
-	public abstract double countScore(List<Point2D> pts, double threshold);
+	public double countCardinalityScore(){
+		score = (double)inliers.size();
+		return score;
+	}
 	
 	// Cloning a model
 	public abstract Model clone();
@@ -32,6 +34,8 @@ public abstract class Model {
 	
 	// The model does not have to be initialized
 	public abstract boolean areParametersSet();
+	
+	public abstract void setInliers(List<Point2D> pts, double threshold);
 	
 	public List<Point2D> getInliers() {
 		return inliers;

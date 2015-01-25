@@ -11,26 +11,35 @@ import math.geom2d.Point2D;
  */
 public class RANSAC {
 	// Probability that the random sample points are all inliers
-	private double prob;
+	private double probability;
 	// Threshold under which are points considered inliers
-	private double thresh;
+	private double threshold;
 	// Number of iteration of the algorithm
 	private int nStep;
 	
 	// The best model
 	private Model top;
 	
-	public RANSAC(int _nStep, double _tresh){
-		nStep = _nStep;
-		thresh = _tresh;
+	public Model Run(Model prototype, List<Point2D> pts, double threshold, double probability, int nStepInit, int nMax){
+		this.threshold = threshold;
+		this.probability = probability;
+
+		top = FindTop(prototype, pts, threshold, nStepInit);
+		double eRatio = ((double)pts.size() - top.countCardinalityScore()) / (double)pts.size();
+		System.out.println("eRatio: " + eRatio);
+		nStep = (int)(Math.log(1f - probability)/Math.log(1 - Math.pow((1 - eRatio), prototype.getSampleNeeded())));
+		System.out.println("nStep needed: " + nStep);
+		if(nStep > nMax) nStep = nMax;
+		top = FindTop(prototype, pts, threshold, nStep);
+		
+		return top;
 	}
-	
-	public Model Run(List<Point2D> pts, Model prototype){
+
+	private Model FindTop(Model prototype, List<Point2D> pts, double threshold, int nStep){
 		Model model = prototype.clone();
 		top = prototype.clone();
 		Point2D [] samples;
 		Random rand;
-		
 		for(int i = 0; i < nStep; i++){
 		    samples = new Point2D [model.getSampleNeeded()];
 		    rand = new Random();
@@ -39,27 +48,27 @@ public class RANSAC {
 		    		samples[j] = pts.get(rand.nextInt(pts.size()));
 		    	}
 		    }while(!model.setParameters(samples));
-		    model.countScore(pts, thresh);
+		    model.setInliers(pts, threshold);
+		    model.countCardinalityScore();
 		    if(model.getScore() > top.getScore())top = model.clone();
 		}
-		
 		return top;
 	}
 	
-	public double getProb() {
-		return prob;
+	public double getProbability() {
+		return probability;
 	}
 
-	public void setProb(double prob) {
-		this.prob = prob;
+	public void setProbability(double probability) {
+		this.probability = probability;
 	}
 
-	public double getTresh() {
-		return thresh;
+	public double getThreshold() {
+		return threshold;
 	}
 
-	public void setTresh(double tresh) {
-		this.thresh = tresh;
+	public void setThreshold(double threshold) {
+		this.threshold = threshold;
 	}
 
 	public int getnStep() {
