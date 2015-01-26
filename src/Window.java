@@ -8,9 +8,9 @@ import javax.swing.*;
 
 public class Window extends JFrame {
 
-  public Window(Visualisation v) {
+  public Window(Visualisation v, int JFrameOnExit) {
     setTitle("Visualisation");
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setDefaultCloseOperation(JFrameOnExit);
     add(v);
     setSize(800, 800);
     setLocationRelativeTo(null);
