@@ -10,8 +10,10 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import math.geom2d.Point2D;
 import math.geom2d.conic.Circle2D;
@@ -21,32 +23,45 @@ public class GUI extends JFrame implements Action {
 	public static BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
 	public static List<Point2D> pts = null;
 	public static ImagePreprocessor<List<Point2D>> img = null;
-	JButton runBtn;
+	public String filepath = "img/fig1-5.png";
+	public JTextField pathField;
 	
 	public GUI(){
 		this.setTitle("RANSAC by Tom and Niels");
 	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    this.setSize(300, 300);
+	   
+	    JPanel mainPane = new JPanel();
+	    mainPane.setLayout(new BoxLayout(mainPane, BoxLayout.PAGE_AXIS));
+	    mainPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 	    
-	    JPanel buttonPane = new JPanel();
-	    buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.PAGE_AXIS));
-	    buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
-	    buttonPane.add(Box.createHorizontalGlue());
-	    runBtn = new JButton("Run RANSAC");
+	    pathField = new JTextField(200);
+	    pathField.setActionCommand("filepath");
+	    pathField.addActionListener(this);
+	    mainPane.add(pathField);
+	    
+	    JButton findPath = new JButton("Set source file");
+	    findPath.setActionCommand("findpath");
+	    findPath.setAlignmentX(CENTER_ALIGNMENT);
+	    findPath.addActionListener(this);
+	    mainPane.add(findPath);
+
+	    JButton runBtn = new JButton("Run RANSAC");
 	    runBtn.setActionCommand("run");
+	    runBtn.setAlignmentX(CENTER_ALIGNMENT);
 	    runBtn.addActionListener(this);
-	    buttonPane.add(runBtn);
+	    mainPane.add(runBtn);
 	    
 	    Container contentPane = getContentPane();
 	    //contentPane.add(listPane, BorderLayout.CENTER);
-	    contentPane.add(buttonPane, BorderLayout.PAGE_END);
+	    contentPane.add(mainPane, BorderLayout.PAGE_START);
 	    
 		setVisible(true);
 	}
 	
 	public void RunRANSAC(){
 	    try{
-	        img = new PixelExtractor("img/fig1-5.png");
+	        img = new PixelExtractor(filepath);
 	        pts = img.getOutput();
 	        System.out.println("Number of points: " + pts.size());
 	      } catch(Exception e){
@@ -66,13 +81,27 @@ public class GUI extends JFrame implements Action {
 	      viz.setPoints(alg.getTop().getInliers());
 	      System.out.println("Number of steps done: " + alg.getnStep());
 	      System.out.println("Number of inliers: " + alg.getTop().score);
-	      new Window(viz);
+	      new Window(viz, JFrame.DISPOSE_ON_CLOSE);
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		 if ("run".equals(e.getActionCommand())) {
 			 RunRANSAC();
+		 }
+		 else if("filepath".equals(e.getActionCommand())){
+			    filepath = pathField.getText();
+		 }
+		 else if("findpath".equals(e.getActionCommand())){
+			  JFileChooser chooser = new JFileChooser();
+			  chooser.setCurrentDirectory(new java.io.File("."));
+			  chooser.setDialogTitle("choosertitle");
+			  chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			  chooser.setAcceptAllFileFilterUsed(false);
+			  if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+				  filepath = chooser.getSelectedFile().toString();
+				  pathField.setText(filepath);
+			  }
 		 }
 		
 	}
