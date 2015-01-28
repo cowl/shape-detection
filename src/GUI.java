@@ -18,7 +18,10 @@ import javax.swing.JTextField;
 import math.geom2d.Point2D;
 import math.geom2d.conic.Circle2D;
 
-
+/*
+ * Main GUI - window where parameters are set
+ * 
+ */
 public class GUI extends JFrame implements Action {
 	public static BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
 	public static List<Point2D> pts = null;
@@ -59,6 +62,7 @@ public class GUI extends JFrame implements Action {
 		setVisible(true);
 	}
 	
+	// Happens after user hits a button
 	public void RunRANSAC(){
 	    try{
 	        img = new PixelExtractor(filepath);
@@ -75,15 +79,19 @@ public class GUI extends JFrame implements Action {
 
 	      Visualisation viz = new Visualisation();
 	      viz.setBackground(img.getImage());
-	      viz.setPoints(img.getOutput());
-	      viz.setAnnulus(new Circle2D(100,100,50), 50);
 
+	      Annulus annulus = new Annulus(alg.getTop().inliers, ((CircleModel)alg.getTop()).getCircle().center());
+	      if(annulus.getCircle() != null){
+	    	  viz.setAnnulus(annulus);
+	      }
+	      
 	      viz.setPoints(alg.getTop().getInliers());
 	      System.out.println("Number of steps done: " + alg.getnStep());
 	      System.out.println("Number of inliers: " + alg.getTop().score);
 	      new Window(viz, JFrame.DISPOSE_ON_CLOSE);
 	}
 	
+	// Button, text field etc. listener
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		 if ("run".equals(e.getActionCommand())) {

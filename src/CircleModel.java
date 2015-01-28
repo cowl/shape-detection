@@ -29,6 +29,8 @@ public class CircleModel extends Model {
 		score = other.getScore();
 	}
 	
+	// Making the circle out of three points
+	// Returning if true if the circle was created
 	@Override
 	public boolean setParameters(Point2D[] samples) {
 		if(samples.length < 3){

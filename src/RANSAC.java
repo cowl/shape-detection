@@ -20,6 +20,8 @@ public class RANSAC {
 	// The best model
 	private Model top;
 	
+	// RANSAC run - first with given number of steps estimating outliers ratio
+	// second run uses the estimation to count number of steps needed
 	public Model Run(Model prototype, List<Point2D> pts, double threshold, double probability, int nStepInit, int nMax){
 		this.threshold = threshold;
 		this.probability = probability;

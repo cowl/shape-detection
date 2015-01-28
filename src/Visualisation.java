@@ -13,8 +13,7 @@ public class Visualisation extends JPanel {
 
   private BufferedImage background = null;
   private java.util.List<Point2D> points = null;
-  private Circle2D annulus = null;
-  private float annulusWidth = 2;
+  private Annulus annulus = null;
 
   @Override
   public void paintComponent(Graphics g){
@@ -35,12 +34,12 @@ public class Visualisation extends JPanel {
     }
 
     if(annulus != null){
-      Point2D c = annulus.center();
-      int r = (int)annulus.radius(), x = (int)c.getX(), y = (int)c.getY();
+      Point2D c = annulus.getCircle().center();
+      int r = (int)annulus.getCircle().radius(), x = (int)c.getX(), y = (int)c.getY();
 
       g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-      int w = ((int)annulusWidth)/2;
+      int w = ((int) annulus.thickness() / 2);
       g2d.setPaint(Color.green);
       g2d.drawOval(x-r+w, y-r+w, (r-w)*2, (r-w)*2);
       g2d.drawOval(x-r-w, y-r-w, (r+w)*2, (r+w)*2);
@@ -61,9 +60,8 @@ public class Visualisation extends JPanel {
     points = _points;
   }
 
-  public void setAnnulus(Circle2D _circle, float _width){
-    annulus = _circle;
-    annulusWidth = _width;
+  public void setAnnulus(Annulus _annulus){
+    annulus = _annulus;
   }
 
 }
