@@ -11,16 +11,16 @@ import math.geom2d.Point2D;
 public class Annulus {
 	private Point2D [] supportSet; // support set
 	private Circle2D circle;
+	private double stripeWidth;
 	private double e; // width of the annulus
-
-	// TOM: I changed the type to double from int
 	private double areaSize; // estimated size of the area
 	private double ro; // density
 
+	private BigDecimal coveringProbability = null, eAnnuli = null;
 
 	// Using the terminology of the slides
 	public double width(){
-		return circle.radius() - e/2f;
+		return circle.radius() - stripeWidth/2f;
 	}
 	
 	public double thickness(){
@@ -31,24 +31,40 @@ public class Annulus {
 	public Annulus(List<Point2D> wholeSet, List<Point2D> _supportSet, Point2D center){
 		supportSet = _supportSet.toArray(new Point2D[0]);
 		setCircle(supportSet, center);
+		e = stripeWidth / width();
 		setParameters(wholeSet.toArray(new Point2D[0]), 100);
 	}
 
 	// Probability that given points are covered by an annulus of the given width and thickness
 	// The smaller, the stronger the evidence
-	public double Q(){
-		double w = width(), pi2 = Math.PI*Math.PI;
-		int n = supportSet.length;
-		return n*(e + (n-1)) * Math.pow(pi2, n-1) * Math.pow( w*w/areaSize, n-1 ) * Math.pow(e, n-2);
+	// Have to use BigDecimal for precision... too many points
+	public BigDecimal Q(){
+		if(coveringProbability == null){
+			double w = width();
+			int n = supportSet.length;
+			BigDecimal a0 = new BigDecimal(n * (e + (n-1))),
+					a1 = new BigDecimal((2 * Math.PI)).pow(n-1),
+					a2 = new BigDecimal((w * w)/areaSize).pow(n-1),
+					a3 = new BigDecimal(e).pow(n-2);
+			coveringProbability = a0.multiply(a1).multiply(a2).multiply(a3);
+		}
+		return coveringProbability;
 	}
 
 	// Expected number of annuli of given width and thickness
 	// The smaller, the stronger the evidence
-	public double E(){
-		double w = width(), pi2 = Math.PI*Math.PI;
-		int n = supportSet.length;
-		BigDecimal a0 = new BigDecimal(pi2).pow(n-1).divide(fac(new BigDecimal(n-2))), a1 = new BigDecimal(ro).pow(n), a2 = new BigDecimal(w).pow(2*n-2), a3 = new BigDecimal(e).pow(n-2), a4 = new BigDecimal(areaSize);
-		return (a0.multiply(a1).multiply(a2).multiply(a3).multiply(a4)).doubleValue();
+	public BigDecimal E(){
+		if(eAnnuli == null){
+			double w = width(), pi2 = 2 * Math.PI;
+			int n = supportSet.length;
+			BigDecimal a0 = new BigDecimal(pi2).pow(n-1),
+					a1 = new BigDecimal(ro).pow(n),
+					a2 = new BigDecimal(w).pow(2*n-2),
+					a3 = new BigDecimal(e).pow(n-2),
+					a4 = new BigDecimal(areaSize);
+			eAnnuli = (a0.multiply(a1).multiply(a2).multiply(a3).multiply(a4)).divide(fac(new BigDecimal(n-2)), BigDecimal.ROUND_HALF_EVEN);
+		}
+		return eAnnuli;
 	}
 
 	// Finding the circle defining annulus
@@ -116,8 +132,8 @@ public class Annulus {
 		try{
 			Circle2D minCircle = Circle2D.circumCircle(minPoints[0], minPoints[1], minPoints[2]);
 			Circle2D maxCircle = Circle2D.circumCircle(maxPoints[0], maxPoints[1], maxPoints[2]);
-			e = Math.abs(minCircle.radius() - maxCircle.radius());
-			double radius = minCircle.radius() + e/2f;
+			stripeWidth = Math.abs(minCircle.radius() - maxCircle.radius());
+			double radius = minCircle.radius() + stripeWidth/2f;
 			circle = new Circle2D(center, radius);
 		}
 		catch(Exception e){
@@ -158,11 +174,9 @@ public class Annulus {
 
 		ro = Math.log(2) / (Math.PI * medianDist * medianDist);
 		areaSize = m / ro;
-		System.out.println("ro: " + ro);
-		System.out.println("areaSize: " + areaSize);
 	}
 
-	private static BigDecimal fac(BigDecimal x){
+	public static BigDecimal fac(BigDecimal x){
 		return x.compareTo(BigDecimal.ZERO) > 0 ? fac(x.subtract(BigDecimal.ONE)).multiply(x) : new BigDecimal(1);
 	}
 	
@@ -196,4 +210,9 @@ public class Annulus {
 	public Circle2D getCircle() {
 		return circle;
 	}
+
+	public double getStripeWidth() {
+		return stripeWidth;
+	}
+	
 }

@@ -76,7 +76,7 @@ public class GUI extends JFrame implements Action {
 	    
 	      RANSAC alg = new RANSAC();
 
-	      alg.Run(new CircleModel(), pts, 5, 0.5f, 100, 1000);
+	      alg.Run(new CircleModel(), pts, 5, 0.5f, 100, 100);
 
 	      Visualisation viz = new Visualisation();
 	      viz.setBackground(img.getImage());
@@ -89,7 +89,7 @@ public class GUI extends JFrame implements Action {
 	      viz.setPoints(alg.getTop().getInliers());
 	      System.out.println("Number of steps done: " + alg.getnStep());
 	      System.out.println("Number of inliers: " + alg.getTop().score);
-	      //System.out.println("annulus.E(): " + annulus.E());
+	      System.out.println("annulus.E(): " + annulus.E());
 	      System.out.println("annulus.Q(): " + annulus.Q());
 	      new Window(viz, JFrame.DISPOSE_ON_CLOSE);
 	}

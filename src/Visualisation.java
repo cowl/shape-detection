@@ -39,7 +39,7 @@ public class Visualisation extends JPanel {
 
       g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-      int w = ((int) annulus.thickness() / 2);
+      int w = ((int) annulus.getStripeWidth() / 2);
       g2d.setPaint(Color.green);
       g2d.drawOval(x-r+w, y-r+w, (r-w)*2, (r-w)*2);
       g2d.drawOval(x-r-w, y-r-w, (r+w)*2, (r+w)*2);
