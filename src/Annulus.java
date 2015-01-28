@@ -12,7 +12,6 @@ public class Annulus {
 	private Point2D [] supportSet; // support set
 	private Circle2D circle;
 	private double e; // width of the annulus
-	private int n; // number of points in support set,
 
 	// TOM: I changed the type to double from int
 	private double areaSize; // estimated size of the area
@@ -29,16 +28,17 @@ public class Annulus {
 	}
 
 	// To create Annulus we need the support set and its center
-	public Annulus(List<Point2D> _supportSet, Point2D center){
+	public Annulus(List<Point2D> wholeSet, List<Point2D> _supportSet, Point2D center){
 		supportSet = _supportSet.toArray(new Point2D[0]);
 		setCircle(supportSet, center);
-		setParameters(supportSet);
+		setParameters(wholeSet.toArray(new Point2D[0]), 100);
 	}
 
 	// Probability that given points are covered by an annulus of the given width and thickness
 	// The smaller, the stronger the evidence
 	public double Q(){
 		double w = width(), pi2 = Math.PI*Math.PI;
+		int n = supportSet.length;
 		return n*(e + (n-1)) * Math.pow(pi2, n-1) * Math.pow( w*w/areaSize, n-1 ) * Math.pow(e, n-2);
 	}
 
@@ -46,6 +46,7 @@ public class Annulus {
 	// The smaller, the stronger the evidence
 	public double E(){
 		double w = width(), pi2 = Math.PI*Math.PI;
+		int n = supportSet.length;
 		BigDecimal a0 = new BigDecimal(pi2).pow(n-1).divide(fac(new BigDecimal(n-2))), a1 = new BigDecimal(ro).pow(n), a2 = new BigDecimal(w).pow(2*n-2), a3 = new BigDecimal(e).pow(n-2), a4 = new BigDecimal(areaSize);
 		return (a0.multiply(a1).multiply(a2).multiply(a3).multiply(a4)).doubleValue();
 	}
@@ -125,24 +126,40 @@ public class Annulus {
 	}
 	
 	// Set parameters density and estimated areasize
-	private void setParameters(Point2D [] supSet){
-		supportSet = supSet;
-		n = supSet.length;
-		double[] distanceNearestNeighbour = new double[n];
-		for(int i = 0; i < n; i++){
+	private void setParameters(Point2D [] wholeSet, int medianSampleSize){
+		if(medianSampleSize < 0 || medianSampleSize > wholeSet.length){
+			medianSampleSize = wholeSet.length;
+		}
+	    int m = wholeSet.length;
+	    Point2D [] medianSampleSet = new Point2D[medianSampleSize];
+		Random rand = new Random();
+		for(int i = 0; i < medianSampleSize; i++){
+			medianSampleSet[i] = wholeSet[rand.nextInt(m)];
+		}
+		
+		double[] distanceNearestNeighbour = new double[medianSampleSize];
+		double dist;
+		for(int i = 0; i < medianSampleSize; i++){
 			double mindist = Double.MAX_VALUE;
-			for(int j = 0; j < n; j++){
-				double dist = supSet[i].distance(supSet[j]);
-				if(dist < mindist)
-					mindist = dist;
+			for(int j = 0; j < medianSampleSize; j++){
+				if(!medianSampleSet[i].contains(medianSampleSet[j])){
+					dist = medianSampleSet[i].distance(medianSampleSet[j]);
+					if(dist < mindist)
+						mindist = dist;
+				}
 			}
 			distanceNearestNeighbour[i] = mindist;
 		}
+		/*for(int i = 0; i < medianSampleSize; i++){
+			System.out.println("i" + i + ": " + distanceNearestNeighbour[i]);
+		}*/
 		Arrays.sort(distanceNearestNeighbour);
-		double mediandist = (distanceNearestNeighbour[n/2]+distanceNearestNeighbour[n/2+n%2])/2;
+		double medianDist = (distanceNearestNeighbour[medianSampleSize/2] + distanceNearestNeighbour[medianSampleSize/2 + medianSampleSize%2]) / 2f;
 
-		ro = Math.log(2) / (Math.PI * mediandist*mediandist);
-		areaSize = n/ro;
+		ro = Math.log(2) / (Math.PI * medianDist * medianDist);
+		areaSize = m / ro;
+		System.out.println("ro: " + ro);
+		System.out.println("areaSize: " + areaSize);
 	}
 
 	private static BigDecimal fac(BigDecimal x){

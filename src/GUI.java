@@ -3,7 +3,9 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -71,8 +73,7 @@ public class GUI extends JFrame implements Action {
 	      } catch(Exception e){
 	        System.out.println("Cannot find source image.");
 	      }
-
-
+	    
 	      RANSAC alg = new RANSAC();
 
 	      alg.Run(new CircleModel(), pts, 5, 0.5f, 100, 1000);
@@ -80,7 +81,7 @@ public class GUI extends JFrame implements Action {
 	      Visualisation viz = new Visualisation();
 	      viz.setBackground(img.getImage());
 
-	      Annulus annulus = new Annulus(alg.getTop().inliers, ((CircleModel)alg.getTop()).getCircle().center());
+	      Annulus annulus = new Annulus(pts, alg.getTop().inliers, ((CircleModel)alg.getTop()).getCircle().center());
 	      if(annulus.getCircle() != null){
 	    	  viz.setAnnulus(annulus);
 	      }
@@ -88,6 +89,8 @@ public class GUI extends JFrame implements Action {
 	      viz.setPoints(alg.getTop().getInliers());
 	      System.out.println("Number of steps done: " + alg.getnStep());
 	      System.out.println("Number of inliers: " + alg.getTop().score);
+	      //System.out.println("annulus.E(): " + annulus.E());
+	      System.out.println("annulus.Q(): " + annulus.Q());
 	      new Window(viz, JFrame.DISPOSE_ON_CLOSE);
 	}
 	
