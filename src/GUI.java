@@ -1,5 +1,7 @@
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -14,7 +16,10 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import math.geom2d.Point2D;
@@ -28,34 +33,143 @@ public class GUI extends JFrame implements Action {
 	public static BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
 	public static List<Point2D> pts = null;
 	public static ImagePreprocessor<List<Point2D>> img = null;
-	public String filepath = "img/fig1-5.png";
-	public JTextField pathField;
+	public String filepath = "img/fig1-5.png", output = "";
+	int maxN = 100,initStep = 100, topX = 7;
+	double probability = 0.5f, threshold = 5;
+	public JTextField pathField, probabilityField, thresholdField, topXField, maxNField, initStepField;
+	public JTextArea outputArea;
+	
+	// Happens after user hits a button
+	public void RunRANSAC(){
+	    output = "";
+		try{
+	    	filepath = pathField.getText();
+	        img = new PixelExtractor(filepath);
+	        pts = img.getOutput();
+	      } catch(Exception e){
+	    	 output = "There is a tiny problem: \n" + e.toString();
+			 outputArea.setText(output);
+			 return;
+	      }
+	    outputArea.setText(output);
+	    if(!InputIsAlright()) return;
+	    
+	      RANSAC alg = new RANSAC();
+
+	      CircleModel [] topC = alg.FindTopCircles(new CircleModel(), pts, threshold, probability, initStep, maxN, topX, img.getImage().getWidth());
+
+	      output = "General info: ";
+	      output += "\nNumber of points: " + pts.size();
+	      output += "\nEstimated percentage of outliers: " + alg.getRatio() + "\n";
+	      
+	      for(int i = 0; i < topC.length; i++){
+	    	  output += "\nModel number #" + i;
+	    	  output += "\n   Radius: " + topC[i].getCircle().radius();
+		      Visualisation viz = new Visualisation();
+		      viz.setBackground(img.getImage());
+		      viz.setPoints(topC[i].getInliers());
+		      Annulus annulus = new Annulus(pts, topC[i].inliers, topC[i].getCircle().center());
+		      if(annulus.getCircle() != null){
+		    	  viz.setAnnulus(annulus);
+		    	  output += "\n   Thickness: " + annulus.thickness();
+		    	  /*output += "\n   Q(n): " + annulus.Q();
+		    	  output += "\n   E(n): " + annulus.E();*/
+		      }
+
+		      new Window(viz, JFrame.DISPOSE_ON_CLOSE).setTitle("Model number #" + i);
+	      }
+	      outputArea.setText(output);
+	}
 	
 	public GUI(){
 		this.setTitle("RANSAC by Tom and Niels");
 	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	    this.setSize(300, 300);
+	    this.setSize(400, 700);
+	    this.setLocationByPlatform(true);
 	   
 	    JPanel mainPane = new JPanel();
 	    mainPane.setLayout(new BoxLayout(mainPane, BoxLayout.PAGE_AXIS));
 	    mainPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 	    
+	    mainPane.add(new JLabel("Path to source file:"));
 	    pathField = new JTextField(200);
 	    pathField.setActionCommand("filepath");
 	    pathField.addActionListener(this);
 	    mainPane.add(pathField);
 	    
-	    JButton findPath = new JButton("Set source file");
+	    JButton findPath = new JButton("Browse directories");
 	    findPath.setActionCommand("findpath");
-	    findPath.setAlignmentX(CENTER_ALIGNMENT);
+	    findPath.setAlignmentX(JButton.LEFT_ALIGNMENT);
 	    findPath.addActionListener(this);
 	    mainPane.add(findPath);
 
+	    mainPane.add(Box.createRigidArea(new Dimension(5, 10))); // White space
+	    
+	    mainPane.add(new JLabel("Probability of all samples inliers:"));
+	    probabilityField = new JTextField(15);
+	    probabilityField.setText(probability + "");
+	    probabilityField.setActionCommand("setProbability");
+	    probabilityField.addActionListener(this);
+	    mainPane.add(probabilityField);
+	    
+	    mainPane.add(Box.createRigidArea(new Dimension(5, 10))); // White space
+	    
+	    mainPane.add(new JLabel("Threshold for being an inlier:"));
+	    thresholdField = new JTextField(15);
+	    thresholdField.setText(threshold + "");
+	    thresholdField.setActionCommand("setThreshold");
+	    thresholdField.addActionListener(this);
+	    mainPane.add(thresholdField);
+	    
+	    mainPane.add(Box.createRigidArea(new Dimension(5, 10))); // White space
+	    
+	    mainPane.add(new JLabel("Number of the best models:"));
+	    topXField = new JTextField(15);
+	    topXField.setText(topX + "");
+	    topXField.setActionCommand("setTopX");
+	    topXField.addActionListener(this);
+	    mainPane.add(topXField);
+	    
+	    mainPane.add(Box.createRigidArea(new Dimension(5, 10))); // White space
+	    
+	    mainPane.add(new JLabel("Maximum steps done:"));
+	    maxNField = new JTextField(15);
+	    maxNField.setText(maxN + "");
+	    maxNField.setActionCommand("setMaxN");
+	    maxNField.addActionListener(this);
+	    mainPane.add(maxNField);
+	    
+	    mainPane.add(Box.createRigidArea(new Dimension(5, 10))); // White space
+	    
+	    mainPane.add(new JLabel("Initial number of steps for estimation:"));
+	    initStepField = new JTextField(15);
+	    initStepField.setText(initStep + "");
+	    initStepField.setActionCommand("setInitStep");
+	    initStepField.addActionListener(this);
+	    mainPane.add(initStepField);
+	    
+	    mainPane.add(Box.createRigidArea(new Dimension(5, 15))); // White space
+	    
 	    JButton runBtn = new JButton("Run RANSAC");
 	    runBtn.setActionCommand("run");
-	    runBtn.setAlignmentX(CENTER_ALIGNMENT);
+	    runBtn.setAlignmentX(JButton.LEFT_ALIGNMENT);
 	    runBtn.addActionListener(this);
 	    mainPane.add(runBtn);
+	    
+	    mainPane.add(Box.createRigidArea(new Dimension(5, 15))); // White space
+	    
+        outputArea = new JTextArea();
+        outputArea.setColumns(20);
+        outputArea.setLineWrap(true);
+        outputArea.setRows(18);
+        outputArea.setWrapStyleWord(true);
+        outputArea.setEditable(false);
+        outputArea.setText("Welcome! \nPlease set the parameters and we can roll on.");
+        mainPane.add(outputArea);
+       
+        JScrollPane jScrollPane = new JScrollPane(outputArea);
+        mainPane.add(jScrollPane);
+
 	    
 	    Container contentPane = getContentPane();
 	    //contentPane.add(listPane, BorderLayout.CENTER);
@@ -64,39 +178,10 @@ public class GUI extends JFrame implements Action {
 		setVisible(true);
 	}
 	
-	// Happens after user hits a button
-	public void RunRANSAC(){
-	    try{
-	        img = new PixelExtractor(filepath);
-	        pts = img.getOutput();
-	        System.out.println("Number of points: " + pts.size());
-	      } catch(Exception e){
-	        System.out.println("Cannot find source image.");
-	      }
-	    
-	      RANSAC alg = new RANSAC();
-
-	      alg.Run(new CircleModel(), pts, 5, 0.5f, 100, 100);
-
-	      Visualisation viz = new Visualisation();
-	      viz.setBackground(img.getImage());
-
-	      Annulus annulus = new Annulus(pts, alg.getTop().inliers, ((CircleModel)alg.getTop()).getCircle().center());
-	      if(annulus.getCircle() != null){
-	    	  viz.setAnnulus(annulus);
-	      }
-	      
-	      viz.setPoints(alg.getTop().getInliers());
-	      System.out.println("Number of steps done: " + alg.getnStep());
-	      System.out.println("Number of inliers: " + alg.getTop().score);
-	      System.out.println("annulus.E(): " + annulus.E());
-	      System.out.println("annulus.Q(): " + annulus.Q());
-	      new Window(viz, JFrame.DISPOSE_ON_CLOSE);
-	}
-	
 	// Button, text field etc. listener
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		
 		 if ("run".equals(e.getActionCommand())) {
 			 RunRANSAC();
 		 }
@@ -114,7 +199,104 @@ public class GUI extends JFrame implements Action {
 				  pathField.setText(filepath);
 			  }
 		 }
+
 		
+	}
+	
+	public boolean InputIsAlright(){
+		boolean alright = true;
+		String tmpStr;
+		double tmpDouble;
+		int tmpInt;
+
+		 tmpStr = probabilityField.getText();
+		 output = "Setting the probability...";
+		 try{
+			 tmpDouble = Double.parseDouble(tmpStr);
+			 if(tmpDouble > 0 && tmpDouble < 1){
+				 output += "\nOK";
+				 probability = tmpDouble;
+			 }
+			 else{
+				 alright = false;
+				 output += "\nProbability has to be in the interval (0; 1)";
+			 }
+		 }catch(Exception ex){
+			 alright = false;
+			 output += "\nThere is a tiny problem: \n" + ex.toString();
+		 }
+
+		 tmpStr = thresholdField.getText();
+		 output += "\n\nSetting the threshold...";
+		 try{
+			 tmpDouble = Double.parseDouble(tmpStr);
+			 if(tmpDouble > 0){
+				 output += "\nOK";
+				 threshold = tmpDouble;
+			 }
+			 else{
+				 alright = false;
+				 output += "\nThreshold has to be positive";
+			 }
+		 }catch(Exception ex){
+			 alright = false;
+			 output += "\nThere is a tiny problem: \n" + ex.toString();
+		 }
+		 
+		 tmpStr = topXField.getText();
+		 output += "\n\nSetting the number of models...";
+		 try{
+			 tmpInt = Integer.parseInt(tmpStr);
+			 if(tmpInt > 0 && tmpInt < 10){
+				 output += "\nOK";
+				 topX = tmpInt;
+			 }
+			 else{
+				 alright = false;
+				 output += "\nNumber of models has to be in the interval (0; 10>";
+			 }
+		 }catch(Exception ex){
+			 alright = false;
+			 output += "\nThere is a tiny problem: \n" + ex.toString();
+		 }
+		 
+		 tmpStr = maxNField.getText();
+		 output += "\n\nSetting the max number of steps...";
+		 try{
+			 tmpInt = Integer.parseInt(tmpStr);
+			 if(tmpInt > 0){
+				 output += "\nOK";
+				 maxN = tmpInt;
+			 }
+			 else{
+				 alright = false;
+				 output += "\nNumber steps has to be positive";
+			 }
+		 }catch(Exception ex){
+			 alright = false;
+			 output += "\nThere is a tiny problem: \n" + ex.toString();
+		 }
+		 
+		 tmpStr = initStepField.getText();
+		 output += "\n\nSetting the initial number of steps...";
+		 try{
+			 tmpInt = Integer.parseInt(tmpStr);
+			 if(tmpInt > 0){
+				 output += "\nOK";
+				 initStep = tmpInt;
+			 }
+			 else{
+				 alright = false;
+				 output += "\nNumber steps has to be positive";
+			 }
+		 }catch(Exception ex){
+			 alright = false;
+			 output += "\nThere is a tiny problem: \n" + ex.toString();
+		 }
+		
+		 outputArea.setText(output);
+		 
+		return alright;
 	}
 	
 	@Override

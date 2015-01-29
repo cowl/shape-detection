@@ -31,7 +31,7 @@ public class Annulus {
 	public Annulus(List<Point2D> wholeSet, List<Point2D> _supportSet, Point2D center){
 		supportSet = _supportSet.toArray(new Point2D[0]);
 		setCircle(supportSet, center);
-		e = stripeWidth / width();
+		if(circle != null)e = stripeWidth / width();
 		setParameters(wholeSet.toArray(new Point2D[0]), 100);
 	}
 
