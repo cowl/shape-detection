@@ -97,76 +97,25 @@ public class Annulus {
 
 	// Finding the circle defining annulus
 	private void setCircle(Point2D [] supSet, Point2D center){
-		if(supSet.length < 3 || center == null) return;
-		// Find the max circle and min circle through three closest points to the center and three most distant
-		Point2D [] minPoints = new Point2D[3];
-		Point2D [] maxPoints = new Point2D[3];
-		double [] minDist = new double[3];
-		double [] maxDist = new double[3];
-		// Init min/max Point arrays
-		minPoints[0] = minPoints[1] = minPoints[2] = maxPoints[0] = maxPoints[1] = maxPoints[2] = null;
-		// Init distances
-		minDist[0] = minDist[1] = minDist[2] = Double.MAX_VALUE;
-		maxDist[0] = maxDist[1] = maxDist[2] = 0;
-		// The goal is to find twice three points which can make a circle
+		if(supSet.length < 1 || center == null) return;
+		double maxDist, minDist;
+		maxDist = minDist = center.distance(supSet[0]);
 		double dist = 0;
-		Point2D candidate = null;
-		int indexOfCandidate = 0;
 		for(int j = 0; j < supSet.length; j++){
-			candidate = supSet[j];
-			dist = center.distance(candidate);
-			// Min part
-			if(dist < minDist[2]){
-				// Distance is smaller than the biggest of small
-				if(dist < minDist[1]){
-					if(dist < minDist[0]){
-						indexOfCandidate = 0;
-					}
-					else{
-						indexOfCandidate = 1;
-					}
-				}
-				else{
-					indexOfCandidate = 2;
-				}
-				// Check duplicates and colinearity 
-				if(CheckCandidatePoint(minPoints, candidate)){
-					// Shift points, include candidate
-					IncludeCandidate(center, minPoints, minDist, candidate, indexOfCandidate);
-				}
+			dist = center.distance(supSet[j]);
+			if(dist < minDist){
+				minDist = dist;
 			}
-			// Max part
-			if(dist > maxDist[2]){
-				// Distance is bigger than the smallest of big
-				if(dist > maxDist[1]){
-					if(dist > maxDist[0]){
-						indexOfCandidate = 0;
-					}
-					else{
-						indexOfCandidate = 1;
-					}
-				}
-				else{
-					indexOfCandidate = 2;
-				}
-				// Check duplicates and colinearity 
-				if(CheckCandidatePoint(maxPoints, candidate)){
-					// Shift points, include candidate
-					IncludeCandidate(center, maxPoints, maxDist, candidate, indexOfCandidate);
-				}
+			if(dist > maxDist){
+				maxDist = dist;
 			}
+		}
+		Circle2D minCircle = new Circle2D(center, minDist);
+		Circle2D maxCircle = new Circle2D(center, maxDist);
+		stripeWidth = Math.abs(minCircle.radius() - maxCircle.radius());
+		double radius = minCircle.radius() + stripeWidth/2f;
+		circle = new Circle2D(center, radius);
 
-		}
-		try{
-			Circle2D minCircle = Circle2D.circumCircle(minPoints[0], minPoints[1], minPoints[2]);
-			Circle2D maxCircle = Circle2D.circumCircle(maxPoints[0], maxPoints[1], maxPoints[2]);
-			stripeWidth = Math.abs(minCircle.radius() - maxCircle.radius());
-			double radius = minCircle.radius() + stripeWidth/2f;
-			circle = new Circle2D(center, radius);
-		}
-		catch(Exception e){
-			System.out.println("Annulus not created: " + e.getMessage());
-		}
 	}
 	
 	// Set parameters density and estimated areasize
@@ -208,32 +157,6 @@ public class Annulus {
 		return x.compareTo(BigDecimal.ZERO) > 0 ? fac(x.subtract(BigDecimal.ONE)).multiply(x) : new BigDecimal(1);
 	}
 	
-	private boolean CheckCandidatePoint(Point2D [] threePoints, Point2D candidate){
-		if(threePoints.length < 3)return false;
-		boolean ret = true;
-		if(threePoints[0] != null){
-			ret = !threePoints[0].contains(candidate);
-			if(ret && threePoints[1] != null){
-				ret = !threePoints[1].contains(candidate);
-				if(ret){
-					ret = !(new Line2D(threePoints[0], threePoints[1])).contains(candidate);
-				}
-			}
-		}
-		return ret;
-	}
-	
-	private void IncludeCandidate(Point2D center, Point2D [] threePoints, double [] distances, Point2D candidate, int indexOfCandidate){
-		Point2D in = candidate, out = null;
-		for(int i = indexOfCandidate; i < 3; i++){
-			out = threePoints[i];
-			threePoints[i] = in;
-			if(in != null){
-				distances[i] = center.distance(in);
-			}
-			in = out;
-		}
-	}
 
 	public Circle2D getCircle() {
 		return circle;
