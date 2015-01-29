@@ -26,22 +26,6 @@ public class Annulus {
 	public double thickness(){
 		return e;
 	}
-	
-	public static Annulus create(List<Point2D> wholeSet, List<Point2D> _supportSet, Point2D center){
-		Annulus an = new Annulus(wholeSet, _supportSet, center);
-		if(an.getCircle() == null){
-			an = null;
-		}
-		return an;
-	}
-	
-	public static Annulus create(List<Point2D> _supportSet, Point2D center, double _ro, double _areaSize){
-		Annulus an = new Annulus(_supportSet, center, _ro, _areaSize);
-		if(an.getCircle() == null){
-			an = null;
-		}
-		return an;
-	}
 
 	private void Init(List<Point2D> _supportSet, Point2D center){
 		supportSet = _supportSet.toArray(new Point2D[0]);
@@ -50,12 +34,12 @@ public class Annulus {
 	}
 	
 	// To create Annulus we need the support set and its center
-	private Annulus(List<Point2D> wholeSet, List<Point2D> _supportSet, Point2D center){
+	public Annulus(List<Point2D> wholeSet, List<Point2D> _supportSet, Point2D center){
 		Init(_supportSet, center);
 		setParameters(wholeSet.toArray(new Point2D[0]), wholeSet.size());
 	}
 	
-	private Annulus(List<Point2D> _supportSet, Point2D center, double _ro, double _areaSize){
+	public Annulus(List<Point2D> _supportSet, Point2D center, double _ro, double _areaSize){
 		Init(_supportSet, center);
 		ro = _ro;
 		areaSize = _areaSize;

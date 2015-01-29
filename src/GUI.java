@@ -63,22 +63,16 @@ public class GUI extends JFrame implements Action {
 	      output += "\nEstimated percentage of outliers: " + alg.getRatio() + "\n";
 	      
 	      Annulus annulus = null;
-	      double density = -1, areaSize = -1;
 	      for(int i = 0; i < topC.length; i++){
 	    	  output += "\nModel number #" + i;
 	    	  output += "\n   Radius: " + topC[i].getCircle().radius();
 		      Visualisation viz = new Visualisation();
 		      viz.setBackground(img.getImage());
 		      viz.setPoints(topC[i].getInliers());
-		      if(annulus != null && density < 0 && areaSize < 0){
-		    	  density = annulus.density();
-		    	  areaSize = annulus.areaSize();
-		    	  annulus = Annulus.create(topC[i].inliers, topC[i].getCircle().center(), density, areaSize);
+		      if(annulus != null){
+		    	  annulus = new Annulus(topC[i].inliers, topC[i].getCircle().center(), annulus.density(), annulus.areaSize());
 		      }
-		      else if(density > 0 && areaSize > 0){
-		    	  annulus = Annulus.create(topC[i].inliers, topC[i].getCircle().center(), density, areaSize);
-		      }
-		      else annulus = Annulus.create(pts, topC[i].inliers, topC[i].getCircle().center());
+		      else annulus = new Annulus(pts, topC[i].inliers, topC[i].getCircle().center());
 		      if(annulus != null){
 		    	  viz.setAnnulus(annulus);
 		    	  output += "\n   Thickness: " + annulus.thickness();
