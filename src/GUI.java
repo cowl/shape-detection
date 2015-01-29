@@ -62,18 +62,28 @@ public class GUI extends JFrame implements Action {
 	      output += "\nNumber of points: " + pts.size();
 	      output += "\nEstimated percentage of outliers: " + alg.getRatio() + "\n";
 	      
+	      Annulus annulus = null;
+	      double density = -1, areaSize = -1;
 	      for(int i = 0; i < topC.length; i++){
 	    	  output += "\nModel number #" + i;
 	    	  output += "\n   Radius: " + topC[i].getCircle().radius();
 		      Visualisation viz = new Visualisation();
 		      viz.setBackground(img.getImage());
 		      viz.setPoints(topC[i].getInliers());
-		      Annulus annulus = new Annulus(pts, topC[i].inliers, topC[i].getCircle().center());
-		      if(annulus.getCircle() != null){
+		      if(annulus != null && density < 0 && areaSize < 0){
+		    	  density = annulus.density();
+		    	  areaSize = annulus.areaSize();
+		    	  annulus = Annulus.create(topC[i].inliers, topC[i].getCircle().center(), density, areaSize);
+		      }
+		      else if(density > 0 && areaSize > 0){
+		    	  annulus = Annulus.create(topC[i].inliers, topC[i].getCircle().center(), density, areaSize);
+		      }
+		      else annulus = Annulus.create(pts, topC[i].inliers, topC[i].getCircle().center());
+		      if(annulus != null){
 		    	  viz.setAnnulus(annulus);
 		    	  output += "\n   Thickness: " + annulus.thickness();
-		    	  /*output += "\n   Q(n): " + annulus.Q();
-		    	  output += "\n   E(n): " + annulus.E();*/
+		    	  output += "\n   Q(n): " + annulus.Q().doubleValue();
+		    	  output += "\n   E(n): " + annulus.E().doubleValue();
 		      }
 
 		      new Window(viz, JFrame.DISPOSE_ON_CLOSE).setTitle("Model number #" + i);
@@ -164,7 +174,7 @@ public class GUI extends JFrame implements Action {
         outputArea.setRows(18);
         outputArea.setWrapStyleWord(true);
         outputArea.setEditable(false);
-        outputArea.setText("Welcome! \nPlease set the parameters and we can roll on.");
+        outputArea.setText("Welcome! \nPlease set the parameters and we can roll on. \n\nIt may take a while, but we do our best");
         mainPane.add(outputArea);
        
         JScrollPane jScrollPane = new JScrollPane(outputArea);

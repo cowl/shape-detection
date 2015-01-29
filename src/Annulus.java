@@ -26,15 +26,43 @@ public class Annulus {
 	public double thickness(){
 		return e;
 	}
+	
+	public static Annulus create(List<Point2D> wholeSet, List<Point2D> _supportSet, Point2D center){
+		Annulus an = new Annulus(wholeSet, _supportSet, center);
+		if(an.getCircle() == null){
+			an = null;
+		}
+		return an;
+	}
+	
+	public static Annulus create(List<Point2D> _supportSet, Point2D center, double _ro, double _areaSize){
+		Annulus an = new Annulus(_supportSet, center, _ro, _areaSize);
+		if(an.getCircle() == null){
+			an = null;
+		}
+		return an;
+	}
 
-	// To create Annulus we need the support set and its center
-	public Annulus(List<Point2D> wholeSet, List<Point2D> _supportSet, Point2D center){
+	private void Init(List<Point2D> _supportSet, Point2D center){
 		supportSet = _supportSet.toArray(new Point2D[0]);
 		setCircle(supportSet, center);
 		if(circle != null)e = stripeWidth / width();
-		setParameters(wholeSet.toArray(new Point2D[0]), 100);
+	}
+	
+	// To create Annulus we need the support set and its center
+	private Annulus(List<Point2D> wholeSet, List<Point2D> _supportSet, Point2D center){
+		Init(_supportSet, center);
+		setParameters(wholeSet.toArray(new Point2D[0]), (int)Math.ceil(wholeSet.size()/100f));
+	}
+	
+	private Annulus(List<Point2D> _supportSet, Point2D center, double _ro, double _areaSize){
+		Init(_supportSet, center);
+		ro = _ro;
+		areaSize = _areaSize;
 	}
 
+
+	
 	// Probability that given points are covered by an annulus of the given width and thickness
 	// The smaller, the stronger the evidence
 	// Have to use BigDecimal for precision... too many points
@@ -213,6 +241,14 @@ public class Annulus {
 
 	public double getStripeWidth() {
 		return stripeWidth;
+	}
+	
+	public double areaSize() {
+		return areaSize;
+	}
+	
+	public double density() {
+		return ro;
 	}
 	
 }
